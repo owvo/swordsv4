@@ -1,0 +1,137 @@
+:root {
+    --bg-color: #252626;
+    --spacing: 40px; /* Adjust this: controls top spacing AND image gaps */
+    --img-size: 250px;
+}
+
+body, html {
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg-color);
+    overflow-x: hidden;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+#gallery-container {
+    padding-top: var(--spacing);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing);
+}
+
+.row {
+    width: 100vw;
+    height: var(--img-size);
+    overflow: hidden;
+    position: relative;
+}
+
+.track {
+    display: flex;
+    width: max-content;
+}
+
+/* Pause the conveyor belt when hovering anywhere in that specific track */
+.track:hover {
+    animation-play-state: paused !important;
+}
+
+/* Grouping helps make the infinite loop perfectly seamless */
+.img-group {
+    display: flex;
+    gap: var(--spacing);
+    padding-right: var(--spacing);
+}
+
+.gallery-img {
+    width: var(--img-size);
+    height: var(--img-size);
+    object-fit: cover;
+    cursor: pointer;
+    border-radius: 8px;
+    /* Bouncy, snappy transition curve */
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.3s ease;
+}
+
+.gallery-img:hover {
+    /* --hover-rot is assigned randomly via JavaScript */
+    transform: scale(1.15) rotate(var(--hover-rot, 5deg));
+    z-index: 10;
+    position: relative;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+}
+
+/* Continuous scrolling animations */
+@keyframes scroll-left-to-right {
+    0% { transform: translateX(-50%); }
+    100% { transform: translateX(0); }
+}
+
+@keyframes scroll-right-to-left {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
+.row.move-right .track { animation: scroll-left-to-right 25s linear infinite; }
+.row.move-left .track { animation: scroll-right-to-left 25s linear infinite; }
+
+/* Overlay & Spotlight Mode */
+#overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    pointer-events: none;
+    z-index: 100;
+}
+
+#overlay.active {
+    pointer-events: all;
+}
+
+#overlay-bg {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    backdrop-filter: blur(0px);
+    background: rgba(37, 38, 38, 0);
+    transition: all 0.6s ease;
+}
+
+#overlay.active #overlay-bg {
+    backdrop-filter: blur(6px);
+    /* Darkens only the right side for text readability */
+    background: linear-gradient(to right, rgba(37,38,38,0) 0%, rgba(37,38,38,0.2) 50%, rgba(37,38,38,0.9) 60%, #252626 100%);
+}
+
+#text-panel {
+    position: absolute;
+    right: 0; top: 0;
+    width: 45%; height: 100%;
+    padding: 60px;
+    box-sizing: border-box;
+    color: white;
+    opacity: 0;
+    transform: translateX(30px);
+    transition: all 0.5s ease 0.4s; /* Delays slightly so image moves first */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+#overlay.active #text-panel {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+#text-panel h2 { font-size: 3rem; margin-bottom: 10px; }
+#text-panel p { font-size: 1.4rem; line-height: 1.6; color: #ccc; }
+
+/* The cloned image used for the 360 transition */
+.clone-img {
+    position: fixed;
+    z-index: 101;
+    /* Smooth, dynamic curve for the slide across the screen */
+    transition: all 0.7s cubic-bezier(0.25, 1, 0.35, 1);
+    object-fit: cover;
+    border-radius: 0;
+}
